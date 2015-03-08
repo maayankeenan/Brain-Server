@@ -10,6 +10,7 @@ import java.io.IOException;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.json.simple.JSONArray;
@@ -48,6 +49,7 @@ public class Service {
 		FileWriter fileWriter = null;
 		JSONParser parser = new JSONParser();
 		JSONArray jsonArray = new JSONArray();
+		JSONObject prevResult = new JSONObject();
 		
 		try{
 			// if file doesnt exists, then create it
@@ -58,13 +60,15 @@ public class Service {
 					// file exist, read current data
 					Object obj = parser.parse(new FileReader(file));
 		            jsonArray = (JSONArray) obj;
+		            prevResult = (JSONObject) jsonArray.get(jsonArray.size() - 1);
+		            
 				} catch(ParseException e){
 					// do nothing use empty array
 				}
 			}
 			
 			// parse new data and add it to existing
-			JSONArray jsonObj =  (JSONArray)parser.parse(results);
+			JSONObject jsonObj =  (JSONObject)parser.parse(results);
 			jsonArray.add(jsonObj);
 			
 			// save to file
@@ -81,7 +85,7 @@ public class Service {
 			fileWriter.close();
 		}
 		
-		return Response.status(200).entity("success").build();
+		return Response.status(200).entity(prevResult.toJSONString()).build();
         
     }
 }
